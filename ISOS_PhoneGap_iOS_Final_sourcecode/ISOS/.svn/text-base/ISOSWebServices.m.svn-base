@@ -1,0 +1,224 @@
+//
+//  ISOSWebServices.m
+//  ISOS
+//
+//  Created by Harshil Patel on 31/10/12.
+//
+//
+
+#import "ISOSWebServices.h"
+#import "ASIHTTP/ASIHTTPRequest.h"
+#import "JSONClasses/JSON.h"
+#import "AppDelegate.h"
+
+#define LOGIN_URL @"http://202.131.96.149:81/isos/services/authenticate/"
+//#define LOGIN_URL @"http://202.131.96.148/isos/services/authenticate/"
+#define CHECKIN_URL @"http://202.131.96.149:81/isos/services/checkin/"
+
+//#define CHECKIN_URL @"http://202.131.96.148/isos/services/checkin/"
+
+//#define LOGIN_URL @"http://202.131.96.148/isostesting/Services/authenticate/"
+//#define CHECKIN_URL @"http://202.131.96.148/isostesting/Services/checkin/"
+
+@implementation ISOSWebServices
+@synthesize responseDict,callBackId,/*progressController,*/bgTaskId;
+
+-(void)webServiceCall:(NSMutableArray*)_arguments withDict:(NSMutableDictionary*)options{
+    
+    self.responseDict = [NSDictionary dictionaryWithDictionary:options];
+    self.callBackId = [_arguments objectAtIndex:0];
+    AppDelegate *appDel = (AppDelegate*)[[UIApplication sharedApplication]delegate];
+    if ([[options objectForKey:@"method"] isEqualToString:@"login"]) {
+
+        NSString *serviceurlstr = [NSString stringWithFormat:@"%@",LOGIN_URL];
+        NSURL *requesturl = [NSURL URLWithString:[serviceurlstr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        
+        NSMutableDictionary *jsonDict = [NSMutableDictionary dictionary];
+        [jsonDict setObject:[options objectForKey:@"membershipID"] forKey:@"UserName"];
+        [jsonDict setObject:[options objectForKey:@"DeviceToken"] forKey:@"DeviceToken"];
+        [jsonDict setObject:@"i" forKey:@"DeviceType"];
+        [jsonDict setObject:@"123" forKey:@"Password"];
+    
+//        self.progressController = [[ProgressController alloc]init];
+//        [self.progressController setProgressString:@"Loading"];
+//        [self.progressController startProgressBar];
+//        progressController = [[ProgressController alloc]init];
+//        [progressController setProgressString:@"Loading"];
+        
+        
+        [appDel.progressController startProgressBar];
+        
+        [self sendASIRequest:jsonDict requestURL:requesturl];
+        
+        
+    /*
+        CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:[options objectForKey:@"membershipID"]];
+
+        //    [result toSuccessCallbackString:[options objectForKey:@"membershipID"]];
+        [self writeJavascript:[result toErrorCallbackString:[_arguments objectAtIndex:0]]];
+     */
+    }
+    else if ([[options objectForKey:@"method"] isEqualToString:@"checkin"]){
+        
+        NSString *serviceurlstr = [NSString stringWithFormat:@"%@",CHECKIN_URL];
+
+        NSURL *requesturl = [NSURL URLWithString:[serviceurlstr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        
+        NSMutableDictionary *jsonDict = [NSMutableDictionary dictionary];
+        [jsonDict setObject:[options objectForKey:@"UserName"] forKey:@"UserName"];
+        [jsonDict setObject:[options objectForKey:@"DeviceToken"] forKey:@"DeviceToken"];
+        [jsonDict setObject:[options objectForKey:@"Latitude"] forKey:@"Latitude"];
+        [jsonDict setObject:[options objectForKey:@"Longitude"] forKey:@"Longitude"];
+        
+        NSDate *currentDate = [NSDate date];
+        
+        /*
+        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc]init]autorelease];
+        [dateFormatter setTimeZone:[NSTimeZone systemTimeZone]];
+        [dateFormatter setDateFormat:@"YYYY-MM-dd HH:mm:ssZZZ"];
+         */
+//        [NSNumber numberWithDouble:[currentDate timeIntervalSince1970]];
+        NSString *str = [NSString stringWithFormat:@"%lf",[currentDate timeIntervalSince1970]];
+        [jsonDict setObject:str forKey:@"timestamp"];
+        
+        
+//        self.progressController = [[ProgressController alloc]init];
+//        [self.progressController setProgressString:@"Loading"];
+//        [self.progressController startProgressBar];
+        
+//        progressController = [[ProgressController alloc]init];
+//        [progressController setProgressString:@"Loading"];
+        [appDel.progressController startProgressBar];
+        /*
+        //  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        //  Request extra time to execute code in background
+        //  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        
+        bgTaskId = [[UIApplication sharedApplication]beginBackgroundTaskWithExpirationHandler:^{
+            
+            
+            [[UIApplication sharedApplication]endBackgroundTask:bgTaskId];
+            bgTaskId = UIBackgroundTaskInvalid;
+            
+        }];
+        //  --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+        
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            
+        // Do the work associated with the task, preferably in chunks.
+            
+        
+            
+        [[UIApplication sharedApplication]endBackgroundTask:bgTaskId];
+        bgTaskId = UIBackgroundTaskInvalid;
+        });
+         */
+        [self sendASIRequest:jsonDict requestURL:requesturl];
+    }
+    
+}
+
+- (void)sendASIRequest:(NSMutableDictionary*)_dict requestURL:(NSURL*)url{
+    
+    ASIHTTPRequest *request = [ASIHTTPRequest requestWithURL:url];
+    NSString *jsonStr = [_dict JSONRepresentation];
+    D_Log(@"JSON Str: %@",jsonStr);
+    D_Log(@"URL: %@",url);
+    
+    int ttl = [jsonStr lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    NSMutableData *reqData = [NSMutableData dataWithBytes:[jsonStr UTF8String] length:ttl];
+    [request setPostBody:reqData];
+    [request setRequestMethod:@"POST"];
+    [request addRequestHeader:@"Content-Type" value:@"application/json;charset=UTF-8;"];
+    [request setDelegate:self];
+    [request setShouldContinueWhenAppEntersBackground:YES];
+    [request startAsynchronous];
+}
+
+- (void)requestFinished:(ASIHTTPRequest *)request{
+    //  Successful response
+    NSString *responseString = [request responseString];
+    
+//    [self.progressController removeProgressBar];
+//    [self.progressController release];
+    AppDelegate *appDel = (AppDelegate*)[[UIApplication sharedApplication]delegate];
+    [appDel.progressController removeProgressBar];
+//    [progressController release];
+//    progressController = nil;
+    
+    SBJsonParser *parser = [[SBJsonParser new]autorelease];
+    NSDictionary *responseDictionary = [parser objectWithString:responseString];
+    
+    //  Status code - 0 for successful authentication
+    //  Status code - 4 for successful checkin
+
+    CDVPluginResult *result=nil;
+    if ([request responseStatusCode]==200) {
+        if ([[responseDictionary objectForKey:@"StatusCode"]integerValue]==0) {
+            if ([[self.responseDict objectForKey:@"method"] isEqualToString:@"checkin"]) {
+                
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSString *documentsDirectory = [paths objectAtIndex:0];
+                NSString *path = [documentsDirectory stringByAppendingPathComponent:@"locations.txt"];
+
+                NSMutableArray *arr = [NSMutableArray arrayWithContentsOfFile:path];
+                if (arr==nil) {
+                    arr=[NSMutableArray array];
+                }
+                [arr addObject:@"Check in done in requestFinished"];
+                [arr writeToFile:path atomically:YES];
+            }
+             result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:self.responseDict];
+            [self writeJavascript:[result toSuccessCallbackString:self.callBackId]];
+        }
+        else if([[responseDictionary objectForKey:@"StatusCode"]integerValue]==1){
+            result=[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:self.responseDict];
+            [self writeJavascript:[result toErrorCallbackString:self.callBackId]];
+        }
+    }
+    
+    else{
+        
+        if ([UIApplication sharedApplication].applicationState==UIApplicationStateActive) {
+            UIAlertView *alert = [[UIAlertView alloc]initWithTitle:@"Error" message:@"Error" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+            [alert show];
+            [alert release];
+        }
+    }
+
+}
+
+- (void)requestFailed:(ASIHTTPRequest *)request
+{
+//    [self.progressController removeProgressBar];
+//    [self.progressController release];
+    AppDelegate *appDel = (AppDelegate*)[[UIApplication sharedApplication]delegate];
+    [appDel.progressController removeProgressBar];
+//    [progressController release];
+//    progressController = nil;
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *path = [documentsDirectory stringByAppendingPathComponent:@"locations.txt"];
+    
+    NSMutableArray *arr = [NSMutableArray arrayWithContentsOfFile:path];
+    if (arr==nil) {
+        arr=[NSMutableArray array];
+    }
+    [arr addObject:@"Check in done in requestFailed"];
+    [arr writeToFile:path atomically:YES];
+    
+    if ([UIApplication sharedApplication].applicationState==UIApplicationStateActive) {
+        UIAlertView *failureAlert = [[UIAlertView alloc]initWithTitle:@"Server Error" message:@"Please try again later" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+        [failureAlert show];
+        [failureAlert release];
+    }
+}
+
+- (void)dealloc{
+    [responseDict release];
+    [callBackId release];
+//    progressController=nil;
+    [super dealloc];
+}
+@end

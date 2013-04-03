@@ -1,0 +1,25 @@
+//
+//  ISOSWebServices.h
+//  ISOS
+//
+//  Created by Harshil Patel on 31/10/12.
+//
+//
+
+#import <Foundation/Foundation.h>
+#import <Cordova/CDVPlugin.h>
+#import "ProgressController.h"
+
+@interface ISOSWebServices : CDVPlugin{
+    NSString *callBackId;
+    NSDictionary *responseDict;
+//    ProgressController *progressController;
+}
+@property (nonatomic,retain) NSString *callBackId;
+@property (nonatomic,retain) NSDictionary *responseDict;
+//@property (nonatomic,retain) ProgressController *progressController;
+@property (nonatomic, readwrite) UIBackgroundTaskIdentifier bgTaskId;
+
+- (void)webServiceCall:(NSMutableArray*)_arguments withDict:(NSMutableDictionary*)options;
+- (void)sendASIRequest:(NSMutableDictionary*)_dict requestURL:(NSURL*)url;
+@end

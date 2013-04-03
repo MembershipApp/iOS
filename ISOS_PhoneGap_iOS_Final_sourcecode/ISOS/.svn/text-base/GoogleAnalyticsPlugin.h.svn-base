@@ -1,0 +1,18 @@
+//
+//  GoogleAnalyticsPlugin.h
+//  ISOS
+//
+//  Created by shishir on 22/10/12.
+//
+//
+
+#import <Foundation/Foundation.h>
+#import <Cordova/CDVPlugin.h>
+#import "GANTracker.h"
+@interface GoogleAnalyticsPlugin : CDVPlugin<GANTrackerDelegate>{
+}
+- (void) startTrackerWithAccountID:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void) trackEvent:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+//- (void) setCustomVariable:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+- (void) trackPageview:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+@end

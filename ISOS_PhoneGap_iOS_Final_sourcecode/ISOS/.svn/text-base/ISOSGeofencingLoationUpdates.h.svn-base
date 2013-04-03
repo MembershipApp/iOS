@@ -1,0 +1,34 @@
+//
+//  ISOSGeofencingLoationUpdates.h
+//  ISOS
+//
+//  Created by shishir on 18/10/12.
+//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import <Cordova/CDV.h>
+#import <CoreLocation/CoreLocation.h>
+@interface ISOSGeofencingLoationUpdates : CDVPlugin<CLLocationManagerDelegate>
+{
+    CLLocationManager *locationManager;
+    CLLocation *lastLocation;   // latest location of device
+    CLLocation *lastLocationForCacheUpdate;
+    NSString *callbackIdNew;
+    CLRegion *currentRegion;
+    CLLocationDistance totalDistanceTravelled;
+    
+}
+@property (nonatomic, retain) NSString *callbackIdNew;
+@property (nonatomic, retain) CLLocationManager *locationManager;
+@property (retain, readwrite) CLLocation *lastLocation;
+@property (retain, readwrite) CLLocation *lastLocationForCacheUpdate;
+@property (retain, nonatomic) CLRegion *currentRegion;
+@property (nonatomic) CLLocationDistance totalDistanceTravelled;
+-(void)geofacingLocationUpdate;
+
+-(void)locationUpdatesGeofacing:(NSMutableArray *)arguments withDict:(NSMutableDictionary *)options;
+- (void)doAutoCheckIn:(NSString *)crossRegionMessage;
+
+- (NSString*)getGeoLocationInJson :(NSString*)_latitude andLongitude:(NSString*)_longitude;
+
+@end

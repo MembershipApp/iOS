@@ -1,0 +1,25 @@
+//
+//  ISOSPushNotifyPlugin.h
+//  ISOSPhonegapPushNotification
+//
+//  Created by shishir on 11/10/12.
+//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <Cordova/CDV.h>
+
+@interface ISOSPushNotifyPlugin : CDVPlugin
+{
+    NSString *stringToken;
+    NSDictionary *notificationMessage;
+    NSMutableArray *notificationMessageArray;
+}
+@property(readwrite,retain) NSMutableArray *notificationMessageArray;
+@property(nonatomic,retain)NSString *stringToken;
+@property(nonatomic,retain)NSDictionary *notificationMessage;
+- (void)registerDevice:(NSMutableArray *)arguments withDict:(NSMutableDictionary*)options;
+- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSString*)deviceToken;
+- (void)notificationReceived;
+
+@end

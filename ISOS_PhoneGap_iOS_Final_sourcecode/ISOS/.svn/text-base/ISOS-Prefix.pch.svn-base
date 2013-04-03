@@ -1,0 +1,15 @@
+//
+// Prefix header for all source files of the 'ISOS' target in the 'ISOS' project
+//
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+#endif
+
+//#define DEBUGLog
+
+#ifdef DEBUGLog
+#define D_Log(s,...) NSLog([NSString stringWithFormat:(s),##__VA_ARGS__])
+#else
+#define D_Log(s,...)
+#endif

@@ -1,0 +1,52 @@
+//Mapping with phonegap js and iOS 
+
+//Apple Push Notification 
+var PushNotification = {
+    getRegisterDevice:function(success, fail,resultType) {
+        return Cordova.exec(success, fail, "com.isos.RegisterDevice", "registerDevice",[resultType]);
+	}
+};
+
+//Location Updates Geofencing
+var Geofencing={
+    getgeofencingLocationUpdates:function(success, fail,resultType){
+        return Cordova.exec(success, fail, "com.isos.Geofencing", "locationUpdatesGeofacing",[resultType]);
+    }
+};
+
+//Google Analytics
+var GoogleAnalytics={
+    getGoogleAnalytics:function(success, fail,resultType){
+        return Cordova.exec(success, fail, "com.isos.GoogleAnalytics", "startTrackerWithAccountID",[resultType]);
+    }
+}
+
+// Google Analytics track Event
+var GoogleAnalyticsTrackEvent={
+    getGoogleAnalyticsTrackEvent:function(success,fail,options){
+        return Cordova.exec(success, fail,"com.isos.GoogleAnalyticsTrackEvent", "trackEvent",[options]);
+    }
+}
+
+//Google Analytics TrackPageView
+var GoogleAnalyticsTrackPageview={
+    getGoogleAnalyticsTrackPageview:function(success,fail,options){
+        return Cordova.exec(success, fail,"com.isos.GoogleAnalyticsTrackPageview", "trackPageview",[options]);
+    }
+}
+
+//making network calls through native
+
+var InvokeWebService={
+    webServiceCallFromNative:function(success,fail,resultType){
+        return Cordova.exec(success,fail,"com.isos.InvokeWebService","webServiceCall",[resultType]);
+}
+}
+
+//Open External Link
+
+var ChildBrowser={
+getExternalLink:function(success,fail,options){
+    return Cordova.exec(success, fail,"com.isos.RegisterPluginClass", "showWebPage",[options]);
+}
+}
